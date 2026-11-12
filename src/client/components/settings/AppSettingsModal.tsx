@@ -46,6 +46,7 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
   const [secretKey, setSecretKey] = useState("");
@@ -331,12 +332,20 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
                 <Field label="New Password" htmlFor="sec-new-password">
                   <TextInput
                     id="sec-new-password"
-                    type="text"
+                    type={showNewPassword ? "text" : "password"}
                     value={newPassword}
                     onChange={(event) => setNewPassword(event.target.value)}
                     minLength={8}
-                    autoComplete="off"
+                    autoComplete="new-password"
                     spellCheck={false}
+                    trailing={
+                      <IconButton
+                        size="sm"
+                        label={showNewPassword ? "Hide password" : "Show password"}
+                        icon={showNewPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                        onClick={() => setShowNewPassword((current) => !current)}
+                      />
+                    }
                     required
                   />
                 </Field>

@@ -6,6 +6,7 @@ interface ProjectsContextValue {
   projects: ProjectSummary[];
   loading: boolean;
   refresh: () => Promise<void>;
+  addProject: (project: ProjectSummary) => void;
 }
 
 const ProjectsContext = createContext<ProjectsContextValue | null>(null);
@@ -24,13 +25,20 @@ export function ProjectsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const addProject = useCallback((project: ProjectSummary) => {
+    setProjects((prev) => {
+      if (prev.some((p) => p.id === project.id)) return prev;
+      return [project, ...prev];
+    });
+  }, []);
+
   useEffect(() => {
     void refresh().catch(() => undefined);
     const timer = window.setInterval(() => void refresh().catch(() => undefined), REFRESH_INTERVAL_MS);
     return () => window.clearInterval(timer);
   }, [refresh]);
 
-  const value = useMemo(() => ({ projects, loading, refresh }), [projects, loading, refresh]);
+  const value = useMemo(() => ({ projects, loading, refresh, addProject }), [projects, loading, refresh, addProject]);
   return <ProjectsContext.Provider value={value}>{children}</ProjectsContext.Provider>;
 }
 

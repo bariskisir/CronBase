@@ -14,6 +14,7 @@ export const paths = {
 export const appDatabasePath = path.join(paths.data, "cronbase.sqlite");
 export const projectDatabasesDir = path.join(paths.data, "projects");
 export const runTempDir = path.join(paths.temp, "runs");
+export const moduleCacheDir = path.join(paths.data, "cache", "modules");
 
 export function projectDatabasePath(projectId: string): string {
   if (!/^[a-zA-Z0-9_-]+$/.test(projectId)) {
@@ -27,7 +28,7 @@ export function projectDatabasePath(projectId: string): string {
 }
 
 export function ensureDirectories(): void {
-  for (const dir of [paths.data, projectDatabasesDir, paths.logs, paths.temp, runTempDir]) {
+  for (const dir of [paths.data, projectDatabasesDir, paths.logs, paths.temp, runTempDir, moduleCacheDir]) {
     mkdirSync(dir, { recursive: true });
   }
 }

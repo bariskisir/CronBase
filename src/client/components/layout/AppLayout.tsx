@@ -29,7 +29,7 @@ function readSidebarCollapsed(): boolean {
 }
 
 export function AppLayout() {
-  const { projects, loading: loadingList, refresh: refreshProjects } = useProjects();
+  const { projects, loading: loadingList, refresh: refreshProjects, addProject } = useProjects();
   const toast = useToast();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -287,11 +287,12 @@ export function AppLayout() {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onCreated={(created) => {
-          void refreshProjects();
+          addProject(created);
           setSelectedId(created.id);
           setProject(created);
           setDraftCode(created.code);
           setActiveTab("code");
+          void refreshProjects();
         }}
       />
 

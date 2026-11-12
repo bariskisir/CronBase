@@ -1,3 +1,5 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import type { DatabaseSync, SQLInputValue, SQLOutputValue } from "node:sqlite";
 import { pathToFileURL } from "node:url";
 import { format, inspect } from "node:util";
@@ -141,7 +143,15 @@ const runtimeGlobals = {
   sqlite,
   db,
   env,
-  Deno: { env: { get: (key: string) => envValues[key], toObject: () => ({ ...envValues }) } },
+  Deno: {
+    env: { get: (key: string) => envValues[key], toObject: () => ({ ...envValues }) },
+    readTextFile: async (filePath: string | URL) => readFile(filePath, "utf8"),
+    writeTextFile: async (filePath: string | URL, data: string) => writeFile(filePath, data, "utf8"),
+    readTextFileSync: (filePath: string | URL) => readFileSync(filePath, "utf8"),
+    writeTextFileSync: (filePath: string | URL, data: string) => writeFileSync(filePath, data, "utf8"),
+    mkdir: async (dirPath: string | URL, options?: { recursive?: boolean }) => mkdir(dirPath, options),
+    remove: async (targetPath: string | URL, options?: { recursive?: boolean }) => rm(targetPath, options),
+  },
 };
 
 Object.assign(globalThis, runtimeGlobals);
@@ -157,9 +167,18 @@ function describeError(error: unknown): string {
 
 async function main(): Promise<void> {
   try {
-    const module = (await import(pathToFileURL(input.modulePath).href)) as { default?: unknown };
-    if (typeof module.default === "function") {
-      await (module.default as (context: WorkerInput["context"]) => unknown)(input.context);
+    const module = (await import(pathToFileURL(input.modulePath).href)) as {
+      default?: unknown;
+      main?: unknown;
+    };
+    const entry =
+      typeof module.default === "function"
+        ? (module.default as (context: WorkerInput["context"]) => unknown)
+        : typeof module.main === "function"
+          ? (module.main as (context: WorkerInput["context"]) => unknown)
+          : null;
+    if (entry) {
+      await entry(input.context);
     }
     post({ type: "result", status: "success" });
   } catch (error) {

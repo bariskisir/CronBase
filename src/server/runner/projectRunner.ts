@@ -4,13 +4,14 @@ import path from "node:path";
 import { Worker } from "node:worker_threads";
 import { build, stop as stopEsbuild, type Plugin } from "esbuild";
 import type { LogLevel, RunStatus, RunTrigger } from "../../shared/types/api.js";
-import { paths, projectDatabasePath, runTempDir } from "../config/paths.js";
+import { moduleCacheDir, paths, projectDatabasePath, runTempDir } from "../config/paths.js";
 import { envRepository } from "../db/repositories/envRepository.js";
 import { projectRepository } from "../db/repositories/projectRepository.js";
 import { runRepository } from "../db/repositories/runRepository.js";
 import { versionRepository } from "../db/repositories/versionRepository.js";
 import { nowIso } from "../db/rowMapping.js";
 import { logger } from "../logger/appLogger.js";
+import { createHttpModulePlugin } from "./httpModulePlugin.js";
 import type { RunContext, WorkerInput, WorkerMessage } from "./workerProtocol.js";
 
 const RUN_TIMEOUT_MS = Number(process.env.CRONBASE_RUN_TIMEOUT_SECONDS ?? 300) * 1000;
@@ -80,7 +81,7 @@ async function compile(cacheKey: string, code: string): Promise<string> {
       packages: "external",
       sourcemap: false,
       logLevel: "silent",
-      plugins: [cronbaseModulePlugin],
+      plugins: [cronbaseModulePlugin, createHttpModulePlugin(moduleCacheDir)],
     });
     const output = result.outputFiles[0];
     if (!output) throw new CompileError("Compilation produced no output.");
