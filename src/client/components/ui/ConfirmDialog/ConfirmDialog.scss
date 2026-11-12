@@ -1,0 +1,18 @@
+@use "../../../styles/mixins" as *;
+
+.confirm-dialog {
+  &__message {
+    font-size: $text-md;
+    color: var(--text);
+    line-height: 1.6;
+
+    strong,
+    code {
+      color: var(--text-strong);
+    }
+  }
+
+  &__danger-icon {
+    color: var(--danger);
+  }
+}

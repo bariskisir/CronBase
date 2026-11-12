@@ -1,0 +1,58 @@
+@use "../../../styles/mixins" as *;
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: auto;
+  max-width: 360px;
+  padding: $space-8 $space-6;
+  text-align: center;
+
+  &--compact {
+    padding: $space-5 $space-3;
+    gap: 4px;
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 6px;
+    border-radius: $radius-lg;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &--compact &__icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 2px;
+  }
+
+  &__title {
+    font-size: $text-lg;
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+
+  &--compact &__title {
+    font-size: $text-md;
+    font-weight: 500;
+  }
+
+  &__description {
+    font-size: $text-sm;
+    color: var(--text-muted);
+  }
+
+  &__action {
+    margin-top: 10px;
+  }
+}

@@ -1,0 +1,7 @@
+@use "../../styles/mixins" as *;
+
+.create-project-form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}

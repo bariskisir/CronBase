@@ -1,0 +1,55 @@
+@use "../../styles/mixins" as *;
+
+.auth-layout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: $space-6 $space-4;
+  overflow: auto;
+  background: var(--bg-shell);
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(600px circle at 50% 30%, var(--accent-softer), transparent 70%),
+      radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
+    background-size:
+      100% 100%,
+      22px 22px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
+  }
+
+  &__card {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    padding: 28px;
+    border: 1px solid var(--border);
+    border-radius: $radius-xl;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-lg), var(--highlight);
+    display: flex;
+    flex-direction: column;
+    gap: $space-6;
+    animation: cb-pop-in 320ms $ease-out;
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  &__title {
+    font-size: $text-2xl;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}

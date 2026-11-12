@@ -1,0 +1,101 @@
+@use "../../../styles/mixins" as *;
+
+.btn {
+  @include reset-button;
+  @include transition(background-color, border-color, color, box-shadow, opacity);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  font-weight: 500;
+  white-space: nowrap;
+  user-select: none;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &__label {
+    @include truncate;
+  }
+
+  &--xs {
+    height: $control-xs;
+    padding: 0 8px;
+    font-size: $text-xs;
+    gap: 4px;
+  }
+
+  &--sm {
+    height: $control-sm;
+    padding: 0 10px;
+    font-size: $text-sm;
+  }
+
+  &--md {
+    height: $control-md;
+    padding: 0 12px;
+    font-size: $text-md;
+  }
+
+  &--lg {
+    height: $control-lg;
+    padding: 0 16px;
+    font-size: $text-lg;
+  }
+
+  &--block {
+    display: flex;
+    width: 100%;
+  }
+
+  &--primary {
+    background: var(--accent-solid);
+    color: var(--on-accent);
+    box-shadow:
+      var(--shadow-sm),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+    &:not(:disabled):hover {
+      background: var(--accent-solid-hover);
+    }
+  }
+
+  &--secondary {
+    background: var(--bg-surface);
+    border-color: var(--border-strong);
+    color: var(--text-strong);
+    box-shadow: var(--shadow-sm);
+
+    &:not(:disabled):hover {
+      background: var(--bg-surface-2);
+      border-color: var(--text-faint);
+    }
+  }
+
+  &--ghost {
+    color: var(--text);
+
+    &:not(:disabled):hover {
+      background: var(--bg-hover);
+      color: var(--text-strong);
+    }
+  }
+
+  &--danger {
+    background: var(--danger-solid);
+    color: #fff;
+    box-shadow:
+      var(--shadow-sm),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+    &:not(:disabled):hover {
+      background: var(--danger-solid-hover);
+    }
+  }
+}

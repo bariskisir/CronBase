@@ -1,0 +1,102 @@
+@use "../../styles/mixins" as *;
+
+.project-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-4;
+  height: $header-height;
+  padding: 0 $space-4;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  &__title-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  &__name {
+    @include truncate;
+    max-width: 380px;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--text-strong);
+  }
+
+  &__sep {
+    position: relative;
+    top: 1px;
+    color: var(--text-faint);
+    font-size: $text-sm;
+    line-height: 1;
+    user-select: none;
+  }
+
+  &__file {
+    @include mono($text-xs);
+    position: relative;
+    top: 1px;
+    display: inline-flex;
+    align-items: center;
+    height: 21px;
+    padding: 0 7px;
+    line-height: 1;
+    border-radius: $radius-xs;
+    background: var(--bg-inset);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  &__edit-btn {
+    opacity: 0.65;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &__rename {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 300px;
+    max-width: 100%;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  &__label {
+    @include mobile {
+      display: none;
+    }
+  }
+
+  &__divider {
+    width: 1px;
+    height: 18px;
+    margin: 0 2px;
+    background: var(--border);
+  }
+
+  &__save--dirty {
+    border-color: var(--accent-solid) !important;
+    color: var(--accent) !important;
+  }
+}

@@ -1,0 +1,77 @@
+@use "../../../styles/mixins" as *;
+
+.log-console {
+  @include mono($text-sm);
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 6px 0;
+  background: var(--bg-inset);
+  line-height: 1.6;
+
+  &--empty {
+    display: flex;
+  }
+
+  &__line {
+    display: grid;
+    grid-template-columns: auto 44px 1fr;
+    align-items: start;
+    gap: 12px;
+    padding: 1px $space-4;
+    border-left: 2px solid transparent;
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    &--warn {
+      background: var(--warning-soft);
+      border-left-color: var(--warning);
+    }
+
+    &--error {
+      background: var(--danger-soft);
+      border-left-color: var(--danger);
+    }
+  }
+
+  &__time {
+    color: var(--text-faint);
+    user-select: none;
+  }
+
+  &__level {
+    font-size: $text-2xs;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 20px;
+    user-select: none;
+
+    &--debug {
+      color: var(--debug);
+    }
+
+    &--info {
+      color: var(--accent);
+    }
+
+    &--warn {
+      color: var(--warning);
+    }
+
+    &--error {
+      color: var(--danger);
+    }
+  }
+
+  &__msg {
+    margin: 0;
+    min-width: 0;
+    font: inherit;
+    color: var(--text-strong);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}

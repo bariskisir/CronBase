@@ -1,0 +1,97 @@
+@use "../../../styles/mixins" as *;
+
+.text-input {
+  @include transition(border-color, box-shadow, background-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: $radius-sm;
+  background: var(--bg-inset);
+  box-shadow: var(--shadow-sm);
+
+  &:hover:not(&--disabled) {
+    border-color: var(--text-faint);
+  }
+
+  &:focus-within {
+    @include focus-ring;
+    border-color: var(--accent-solid);
+  }
+
+  &--sm {
+    height: $control-sm;
+    font-size: $text-sm;
+    padding: 0 8px;
+  }
+
+  &--md {
+    height: $control-md;
+    font-size: $text-md;
+  }
+
+  &--lg {
+    height: $control-lg;
+    font-size: $text-lg;
+    padding: 0 12px;
+  }
+
+  &--mono &__control {
+    @include mono;
+  }
+
+  &--invalid {
+    border-color: var(--danger);
+  }
+
+  &--disabled {
+    opacity: 0.55;
+  }
+
+  &__control {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-strong);
+    font-size: inherit;
+
+    &::placeholder {
+      color: var(--text-faint);
+    }
+
+    &:focus-visible {
+      box-shadow: none;
+    }
+
+    &[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+  }
+
+  &__icon {
+    display: inline-flex;
+    color: var(--text-faint);
+    flex-shrink: 0;
+  }
+
+  &__trailing {
+    display: inline-flex;
+    align-items: center;
+    margin-right: -6px;
+    flex-shrink: 0;
+  }
+}

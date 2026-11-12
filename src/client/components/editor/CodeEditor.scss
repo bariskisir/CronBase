@@ -1,0 +1,45 @@
+@use "../../styles/mixins" as *;
+
+.code-editor {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg-canvas);
+
+  .cm-theme,
+  .cm-editor {
+    height: 100%;
+    font-family: $font-mono;
+    font-size: 13px;
+    background-color: var(--bg-canvas) !important;
+  }
+
+  .cm-scroller {
+    font-family: $font-mono;
+    line-height: 1.65;
+    padding: 10px 0;
+    background-color: var(--bg-canvas) !important;
+    @include scrollbar;
+  }
+
+  .cm-gutters {
+    background-color: var(--bg-canvas) !important;
+    border-right: 1px solid var(--border-subtle) !important;
+    color: var(--text-faint) !important;
+    padding: 0 6px 0 4px;
+    user-select: none;
+  }
+
+  .cm-activeLineGutter {
+    background-color: transparent !important;
+    color: var(--text-strong) !important;
+  }
+
+  .cm-activeLine {
+    background-color: rgba(128, 128, 128, 0.06) !important;
+  }
+
+  .cm-focused {
+    outline: none !important;
+  }
+}

@@ -1,0 +1,11 @@
+.code-tab {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+
+  &__editor {
+    flex: 1;
+    min-height: 0;
+  }
+}

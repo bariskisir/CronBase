@@ -1,0 +1,59 @@
+$font-sans:
+  "Inter",
+  "Inter Variable",
+  ui-sans-serif,
+  system-ui,
+  -apple-system,
+  "Segoe UI",
+  Roboto,
+  "Helvetica Neue",
+  Arial,
+  sans-serif;
+$font-mono:
+  "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, "Cascadia Code", Menlo, Consolas, monospace;
+
+$text-2xs: 10.5px;
+$text-xs: 11.5px;
+$text-sm: 12.5px;
+$text-md: 13px;
+$text-lg: 14px;
+$text-xl: 16px;
+$text-2xl: 20px;
+
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+
+$radius-xs: 4px;
+$radius-sm: 6px;
+$radius-md: 8px;
+$radius-lg: 10px;
+$radius-xl: 14px;
+$radius-full: 999px;
+
+$control-xs: 24px;
+$control-sm: 28px;
+$control-md: 32px;
+$control-lg: 38px;
+
+$sidebar-width: 248px;
+$sidebar-collapsed-width: 60px;
+$header-height: 52px;
+$tabs-height: 40px;
+$toolbar-height: 44px;
+$statusbar-height: 28px;
+
+$bp-sm: 640px;
+$bp-md: 900px;
+
+$z-dropdown: 50;
+$z-modal: 100;
+$z-toast: 200;
+
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+$duration-fast: 120ms;
+$duration-base: 180ms;

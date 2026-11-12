@@ -1,0 +1,18 @@
+services:
+  cronbase:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cronbase
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CRONBASE_DATA_DIR=/app/data
+      - CRONBASE_LOGS_DIR=/app/logs
+      - CRONBASE_TEMP_DIR=/app/temp
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs

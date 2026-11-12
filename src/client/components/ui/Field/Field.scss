@@ -1,0 +1,14 @@
+@use "../../../styles/mixins" as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  &__label {
+    font-size: $text-sm;
+    font-weight: 500;
+    color: var(--text-strong);
+  }
+}

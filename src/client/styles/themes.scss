@@ -1,0 +1,92 @@
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-shell: #202122;
+  --bg-canvas: #242526;
+  --bg-surface: #2a2b2c;
+  --bg-surface-2: #2c2d2e;
+  --bg-inset: #202122;
+  --bg-hover: #303233;
+  --bg-active: #353739;
+
+  --border: #333536;
+  --border-subtle: #2e3031;
+  --border-strong: #3e4042;
+
+  --text-strong: #ededed;
+  --text: #bfbfbf;
+  --text-muted: #9a9a9a;
+  --text-faint: #787a7c;
+
+  --accent: #2495ff;
+  --accent-solid: #0069cc;
+  --accent-solid-hover: #0063c1;
+  --accent-soft: rgba(36, 149, 255, 0.14);
+  --accent-softer: rgba(36, 149, 255, 0.08);
+  --accent-ring: rgba(36, 149, 255, 0.28);
+  --on-accent: #ffffff;
+
+  --success: #22c55e;
+  --success-soft: rgba(34, 197, 94, 0.14);
+  --warning: #e0b97f;
+  --warning-soft: rgba(224, 185, 127, 0.15);
+  --danger: #ef4444;
+  --danger-solid: #dc2626;
+  --danger-solid-hover: #b91c1c;
+  --danger-soft: rgba(239, 68, 68, 0.14);
+  --debug: #2495ff;
+
+  --overlay: rgba(16, 17, 18, 0.72);
+  --scrollbar: #434547;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 20px -6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.68);
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-shell: #f4f4f8;
+  --bg-canvas: #fafafd;
+  --bg-surface: #ffffff;
+  --bg-surface-2: #f0f0f3;
+  --bg-inset: #ffffff;
+  --bg-hover: #eaeaea;
+  --bg-active: #e2e2e7;
+
+  --border: #d8d8d8;
+  --border-subtle: #e4e5e6;
+  --border-strong: #c6c6cb;
+
+  --text-strong: #202020;
+  --text: #202020;
+  --text-muted: #606060;
+  --text-faint: #86868b;
+
+  --accent: #0069cc;
+  --accent-solid: #0069cc;
+  --accent-solid-hover: #0058ad;
+  --accent-soft: rgba(0, 105, 204, 0.1);
+  --accent-softer: rgba(0, 105, 204, 0.055);
+  --accent-ring: rgba(0, 105, 204, 0.2);
+  --on-accent: #ffffff;
+
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.1);
+  --warning: #b69500;
+  --warning-soft: rgba(182, 149, 0, 0.12);
+  --danger: #dc2626;
+  --danger-solid: #dc2626;
+  --danger-solid-hover: #b91c1c;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --debug: #0069cc;
+
+  --overlay: rgba(24, 24, 27, 0.42);
+  --scrollbar: #c8c8cd;
+  --shadow-sm: 0 1px 2px rgba(16, 16, 20, 0.05);
+  --shadow-md: 0 8px 20px -6px rgba(16, 16, 20, 0.12);
+  --shadow-lg: 0 24px 48px -12px rgba(16, 16, 20, 0.2);
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}

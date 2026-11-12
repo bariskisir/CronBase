@@ -1,0 +1,105 @@
+@use "../../styles/mixins" as *;
+
+.bottom-drawer {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    height: 220px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-inset);
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    height: 34px;
+    padding: 0 8px 0 $space-4;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+    flex-shrink: 0;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__title {
+    @include overline;
+    color: var(--text-strong);
+  }
+
+  &__details {
+    @include truncate;
+    @include mono($text-xs);
+    color: var(--text-muted);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-3;
+  height: $statusbar-height;
+  padding: 0 $space-3;
+  border-top: 1px solid var(--border);
+  background: var(--bg-shell);
+  font-size: $text-xs;
+  color: var(--text-muted);
+  user-select: none;
+
+  &__console-btn {
+    @include reset-button;
+    @include transition(background-color, color);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 8px;
+    margin-left: -4px;
+    border-radius: $radius-xs;
+    font-weight: 500;
+    color: var(--text);
+
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-strong);
+    }
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  &__shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    @include mobile {
+      display: none;
+    }
+  }
+
+  &__runtime {
+    color: var(--text-faint);
+  }
+}

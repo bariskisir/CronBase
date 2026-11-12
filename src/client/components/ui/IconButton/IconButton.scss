@@ -1,0 +1,43 @@
+@use "../../../styles/mixins" as *;
+
+.icon-btn {
+  @include reset-button;
+  @include transition(background-color, color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: $radius-sm;
+  color: var(--text-muted);
+
+  &--xs {
+    width: 22px;
+    height: 22px;
+  }
+
+  &--sm {
+    width: $control-sm;
+    height: $control-sm;
+  }
+
+  &--md {
+    width: $control-md;
+    height: $control-md;
+  }
+
+  &:not(:disabled):hover,
+  &--active {
+    background: var(--bg-hover);
+    color: var(--text-strong);
+  }
+
+  &--danger:not(:disabled):hover {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}

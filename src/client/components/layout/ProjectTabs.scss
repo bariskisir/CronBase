@@ -1,0 +1,78 @@
+@use "../../styles/mixins" as *;
+
+.project-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: $tabs-height;
+  padding: 0 $space-3;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-surface);
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &__tab {
+    @include reset-button;
+    @include transition(color);
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 11px;
+    font-size: $text-md;
+    font-weight: 500;
+    color: var(--text-muted);
+    white-space: nowrap;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 5px 2px;
+      border-radius: $radius-sm;
+      background: transparent;
+      transition: background-color $duration-fast ease;
+      z-index: -1;
+    }
+
+    &:hover {
+      color: var(--text-strong);
+
+      &::before {
+        background: var(--bg-hover);
+      }
+    }
+
+    &--active {
+      color: var(--accent);
+      font-weight: 600;
+
+      &::after {
+        content: "";
+        position: absolute;
+        left: 8px;
+        right: 8px;
+        bottom: -1px;
+        height: 2px;
+        border-radius: 2px 2px 0 0;
+        background: var(--accent-solid);
+      }
+    }
+
+    svg {
+      opacity: 0.9;
+    }
+  }
+
+  &__dirty {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+}

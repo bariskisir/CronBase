@@ -1,0 +1,103 @@
+@use "../../../styles/mixins" as *;
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4;
+  background: var(--overlay);
+  backdrop-filter: blur(2px);
+  animation: cb-fade-in $duration-base ease;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: calc(100dvh - #{$space-8});
+  border: 1px solid var(--border-strong);
+  border-radius: $radius-xl;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  animation: cb-pop-in 200ms $ease-out;
+
+  &--sm {
+    max-width: 420px;
+  }
+
+  &--md {
+    max-width: 540px;
+  }
+
+  &--lg {
+    max-width: 780px;
+  }
+
+  &--xl {
+    max-width: 1040px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    padding: 12px 14px 12px 18px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  &__heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: $radius-sm;
+    border: 1px solid var(--border);
+    background: var(--bg-surface-2);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  &__title {
+    @include truncate;
+    font-size: $text-lg;
+    font-weight: 600;
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+    overflow: visible;
+    padding: 18px;
+
+    &--flush {
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $space-2;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 $radius-xl $radius-xl;
+    background: var(--bg-surface-2);
+    flex-shrink: 0;
+  }
+}

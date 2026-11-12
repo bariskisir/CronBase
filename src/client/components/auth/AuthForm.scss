@@ -1,0 +1,15 @@
+@use "../../styles/mixins" as *;
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-3;
+
+  &__error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: $text-sm;
+    color: var(--danger);
+  }
+}

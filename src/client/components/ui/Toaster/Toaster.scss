@@ -1,0 +1,71 @@
+@use "../../../styles/mixins" as *;
+
+.toaster {
+  position: fixed;
+  right: $space-4;
+  bottom: $space-4;
+  z-index: $z-toast;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $space-2;
+  pointer-events: none;
+
+  @include mobile {
+    left: $space-3;
+    right: $space-3;
+    bottom: $space-3;
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 360px;
+  max-width: 100%;
+  padding: 10px 8px 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: cb-pop-in 240ms $ease-out;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &--success &__icon {
+    color: var(--success);
+  }
+
+  &--error &__icon {
+    color: var(--danger);
+  }
+
+  &--info &__icon {
+    color: var(--accent);
+  }
+
+  &__message {
+    flex: 1;
+    min-width: 0;
+    font-size: $text-md;
+    color: var(--text-strong);
+    word-break: break-word;
+  }
+
+  &__close {
+    @include reset-button;
+    display: inline-flex;
+    padding: 4px;
+    border-radius: $radius-xs;
+    color: var(--text-faint);
+
+    &:hover {
+      background: var(--bg-hover);
+      color: var(--text-strong);
+    }
+  }
+}

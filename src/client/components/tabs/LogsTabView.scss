@@ -1,0 +1,162 @@
+@use "../../styles/mixins" as *;
+
+.logs-tab {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  flex: 1;
+  min-height: 0;
+
+  @include below-md {
+    grid-template-columns: 1fr;
+    grid-template-rows: 220px 1fr;
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-right: 1px solid var(--border);
+    background: var(--bg-shell);
+
+    @include below-md {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+
+  &__sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: $toolbar-height;
+    padding: 0 10px 0 14px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  &__sidebar-title {
+    @include overline;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-strong);
+
+    span {
+      color: var(--text-faint);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__sidebar-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__run-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+  }
+
+  &__center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+  }
+
+  &__detail {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: var(--bg-inset);
+  }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-3;
+    min-height: $toolbar-height;
+    padding: 6px $space-4;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-surface);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+
+  &__run-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__run-id {
+    @include mono($text-sm);
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+
+  &__run-meta {
+    @include truncate;
+    font-size: $text-xs;
+    color: var(--text-muted);
+  }
+}
+
+.run-item {
+  @include reset-button;
+  @include transition(background-color);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: $radius-sm;
+  text-align: left;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+
+  &--active {
+    background: var(--bg-active);
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: $text-xs;
+    color: var(--text-muted);
+  }
+
+  &__duration {
+    margin-left: auto;
+    @include mono($text-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-strong);
+  }
+
+  &__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: $text-xs;
+    color: var(--text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+}

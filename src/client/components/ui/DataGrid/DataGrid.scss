@@ -1,0 +1,78 @@
+@use "../../../styles/mixins" as *;
+
+.data-grid {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--bg-canvas);
+
+  &__table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    @include mono($text-sm);
+  }
+
+  th,
+  td {
+    max-width: 420px;
+    padding: 0 12px;
+    height: 30px;
+    border-right: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: left;
+    vertical-align: middle;
+    @include truncate;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    height: 32px;
+    background: var(--bg-surface-2);
+    border-bottom-color: var(--border);
+    font-family: $font-sans;
+    font-size: $text-xs;
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+
+  tbody tr:hover td {
+    background: var(--bg-hover);
+  }
+
+  td {
+    color: var(--text-strong);
+  }
+
+  &__index {
+    width: 1%;
+    min-width: 44px;
+    color: var(--text-faint) !important;
+    text-align: right !important;
+    user-select: none;
+  }
+
+  th.data-grid__index {
+    left: 0;
+    z-index: 2;
+  }
+
+  &__num {
+    color: var(--accent) !important;
+  }
+
+  &__null {
+    color: var(--text-faint) !important;
+    font-style: italic;
+  }
+
+  &__empty {
+    height: 96px !important;
+    text-align: center !important;
+    color: var(--text-muted) !important;
+    font-family: $font-sans;
+  }
+}

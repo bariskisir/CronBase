@@ -1,0 +1,62 @@
+@use "../../../styles/mixins" as *;
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: $radius-md;
+  background: var(--bg-inset);
+
+  &--full {
+    display: flex;
+    width: 100%;
+
+    .segmented__item {
+      flex: 1;
+    }
+  }
+
+  &__item {
+    @include reset-button;
+    @include transition(background-color, color, box-shadow);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: $radius-sm;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+
+    &:not(:disabled):hover {
+      color: var(--text-strong);
+    }
+
+    &--active {
+      background: var(--bg-surface-2);
+      color: var(--text-strong);
+      box-shadow:
+        var(--shadow-sm),
+        0 0 0 1px var(--border);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &--sm &__item {
+    height: 22px;
+    padding: 0 8px;
+    font-size: $text-xs;
+  }
+
+  &--md &__item {
+    height: 26px;
+    padding: 0 10px;
+    font-size: $text-sm;
+  }
+}

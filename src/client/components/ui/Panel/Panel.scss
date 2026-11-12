@@ -1,0 +1,51 @@
+@use "../../../styles/mixins" as *;
+
+.panel {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+
+  &--danger {
+    border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-4;
+    padding: 12px $space-4;
+    border-bottom: 1px solid var(--border-subtle);
+
+    &--only {
+      border-bottom: none;
+    }
+
+    @include mobile {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__title {
+    font-size: $text-lg;
+    font-weight: 600;
+  }
+
+  &--danger &__title {
+    color: var(--danger);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    flex-shrink: 0;
+  }
+
+  &__body {
+    padding: $space-4;
+  }
+}

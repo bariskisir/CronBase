@@ -1,0 +1,38 @@
+@use "../../styles/mixins" as *;
+
+.project-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: $radius-sm;
+  background: linear-gradient(180deg, var(--bg-surface-2), var(--bg-surface));
+  color: var(--text-strong);
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: var(--highlight);
+
+  &--sm {
+    width: 22px;
+    height: 22px;
+    font-size: $text-2xs;
+  }
+
+  &--md {
+    width: 28px;
+    height: 28px;
+    font-size: $text-sm;
+  }
+
+  &__status {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 9px;
+    height: 9px;
+    border: 2px solid var(--bg-shell);
+    box-shadow: none !important;
+  }
+}

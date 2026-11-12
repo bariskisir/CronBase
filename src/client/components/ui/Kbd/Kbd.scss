@@ -1,0 +1,15 @@
+@use "../../../styles/mixins" as *;
+
+.kbd {
+  @include mono($text-2xs);
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 4px;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: $radius-xs;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  line-height: 1;
+}

@@ -1,0 +1,73 @@
+@use "../../../styles/mixins" as *;
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &--success {
+    background: var(--success);
+    box-shadow: 0 0 0 3px var(--success-soft);
+  }
+
+  &--error {
+    background: var(--danger);
+    box-shadow: 0 0 0 3px var(--danger-soft);
+  }
+
+  &--running {
+    background: var(--warning);
+    box-shadow: 0 0 0 3px var(--warning-soft);
+    animation: cb-pulse 1.2s ease-in-out infinite;
+  }
+
+  &--idle {
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  &--paused {
+    background: var(--text-faint);
+  }
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: $radius-full;
+  font-size: $text-2xs;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &__dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &--success {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+
+  &--error {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+
+  &--running {
+    background: var(--warning-soft);
+    color: var(--warning);
+
+    .status-pill__dot {
+      animation: cb-pulse 1.2s ease-in-out infinite;
+    }
+  }
+}

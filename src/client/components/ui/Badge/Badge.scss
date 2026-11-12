@@ -1,0 +1,45 @@
+@use "../../../styles/mixins" as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: $radius-xs;
+  font-size: $text-2xs;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &--mono {
+    @include mono($text-2xs);
+    font-weight: 500;
+  }
+
+  &--neutral {
+    background: var(--bg-active);
+    color: var(--text-muted);
+  }
+
+  &--accent {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  &--success {
+    background: var(--success-soft);
+    color: var(--success);
+  }
+
+  &--warning {
+    background: var(--warning-soft);
+    color: var(--warning);
+  }
+
+  &--danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+  }
+}
