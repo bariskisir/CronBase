@@ -13,11 +13,10 @@ import { sessionService } from "../auth/sessionService.js";
 import { paths } from "../config/paths.js";
 import { settingsRepository } from "../db/repositories/settingsRepository.js";
 import { badRequest, notFound, param, parse } from "../http/httpErrors.js";
-import { updateSecretKeySchema, updateSettingsSchema } from "../http/schemas.js";
+import { appLogQuerySchema, updateSecretKeySchema, updateSettingsSchema } from "../http/schemas.js";
 import { logger } from "../logger/appLogger.js";
 
 const LOG_FILE_PATTERN = /^app-(\d{4}-\d{2}-\d{2})\.log$/;
-const MAX_LOG_LINES = 1000;
 
 export const settingsRoutes = Router();
 
@@ -77,12 +76,18 @@ settingsRoutes.get("/app-logs/:date", (request, response: Response<AppLogContent
   const filePath = path.join(paths.logs, `app-${date}.log`);
   if (!existsSync(filePath)) throw notFound("Log file not found");
 
+  const { limit, offset } = parse(appLogQuerySchema, request.query);
   const allLines = readFileSync(filePath, "utf8")
     .split(/\r?\n/)
     .filter((line) => line.length > 0);
+  const total = allLines.length;
+  const defaultOffset = total === 0 ? 0 : Math.floor((total - 1) / limit) * limit;
+  const resolvedOffset = offset === undefined ? defaultOffset : Math.min(offset, defaultOffset);
   response.json({
     date,
-    lines: allLines.slice(-MAX_LOG_LINES),
-    truncated: allLines.length > MAX_LOG_LINES,
+    lines: allLines.slice(resolvedOffset, resolvedOffset + limit),
+    total,
+    limit,
+    offset: resolvedOffset,
   });
 });

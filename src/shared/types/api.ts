@@ -91,6 +91,13 @@ export interface UpdateSecretKeyResponse {
   tokens: AuthTokensResponse;
 }
 
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export interface AppLogFilesResponse {
   files: string[];
 }
@@ -98,7 +105,9 @@ export interface AppLogFilesResponse {
 export interface AppLogContentResponse {
   date: string;
   lines: string[];
-  truncated: boolean;
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface ProjectSummary {
@@ -181,6 +190,10 @@ export interface RunLogEntry {
   level: LogLevel;
   message: string;
   createdAt: string;
+}
+
+export interface RunLogsPage extends PaginatedResponse<RunLogEntry> {
+  totalAll: number;
 }
 
 export interface RunDetail extends RunSummary {

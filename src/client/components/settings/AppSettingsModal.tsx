@@ -1,11 +1,29 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { Copy, Eye, EyeOff, FileText, KeyRound, Moon, RefreshCw, Shield, Sliders, Sun } from "lucide-react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  ExternalLink,
+  Eye,
+  EyeOff,
+  FileText,
+  Info,
+  KeyRound,
+  Moon,
+  RefreshCw,
+  Shield,
+  Sliders,
+  Sun,
+} from "lucide-react";
+import { description as APP_DESCRIPTION, version as APP_VERSION } from "../../../../package.json";
 import { LOG_LEVELS, type LogLevel, type Theme } from "../../../shared/types/api";
 import { api, errorMessage } from "../../api/client";
 import { useTheme } from "../../context/ThemeContext";
 import { useToast } from "../../context/ToastContext";
 import { cx } from "../../utils/cx";
 import {
+  Badge,
+  BrandMark,
   Button,
   Field,
   IconButton,
@@ -24,7 +42,13 @@ interface AppSettingsModalProps {
   onClose: () => void;
 }
 
-type SettingsTab = "preferences" | "security" | "logs";
+type SettingsTab = "preferences" | "security" | "logs" | "about";
+
+const APP_NAME = "CronBase";
+const APP_AUTHOR = "Barış Kısır";
+const APP_AUTHOR_URL = "https://www.bariskisir.com";
+const APP_REPO = "bariskisir/CronBase";
+const APP_REPO_URL = "https://github.com/bariskisir/CronBase";
 
 const THEME_OPTIONS: readonly SegmentedOption<Theme>[] = [
   { value: "dark", label: "Dark", icon: <Moon size={13} /> },
@@ -35,6 +59,8 @@ const LOG_LEVEL_OPTIONS: readonly SegmentedOption<LogLevel>[] = LOG_LEVELS.map((
   value: level,
   label: level.toUpperCase(),
 }));
+
+const SYSTEM_LOGS_PAGE_SIZE = 100;
 
 export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
   const { theme, setTheme, maskCredentials, setMaskCredentials } = useTheme();
@@ -56,7 +82,8 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
   const [logFiles, setLogFiles] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [logLines, setLogLines] = useState<string[]>([]);
-  const [logsTruncated, setLogsTruncated] = useState(false);
+  const [logTotal, setLogTotal] = useState(0);
+  const [logOffset, setLogOffset] = useState(0);
   const [loadingLogs, setLoadingLogs] = useState(false);
 
   useEffect(() => {
@@ -86,21 +113,32 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
       .finally(() => setLoadingLogs(false));
   }, [open, activeTab, toast]);
 
+  const fetchAppLog = useCallback(
+    async (date: string, offset?: number) => {
+      setLoadingLogs(true);
+      try {
+        const res = await api.settings.readAppLog(date, { limit: SYSTEM_LOGS_PAGE_SIZE, offset });
+        setLogLines(res.lines);
+        setLogTotal(res.total);
+        setLogOffset(res.offset);
+      } catch (error) {
+        toast.error(errorMessage(error));
+      } finally {
+        setLoadingLogs(false);
+      }
+    },
+    [toast],
+  );
+
   useEffect(() => {
     if (!open || activeTab !== "logs" || !selectedDate) {
       setLogLines([]);
+      setLogTotal(0);
+      setLogOffset(0);
       return;
     }
-    setLoadingLogs(true);
-    api.settings
-      .readAppLog(selectedDate)
-      .then((res) => {
-        setLogLines(res.lines);
-        setLogsTruncated(res.truncated);
-      })
-      .catch((error) => toast.error(errorMessage(error)))
-      .finally(() => setLoadingLogs(false));
-  }, [open, activeTab, selectedDate, toast]);
+    void fetchAppLog(selectedDate);
+  }, [open, activeTab, selectedDate, fetchAppLog]);
 
   const handleLogLevelChange = async (nextLevel: LogLevel) => {
     setLogLevel(nextLevel);
@@ -179,16 +217,7 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
 
   const refreshLogContent = async () => {
     if (!selectedDate) return;
-    setLoadingLogs(true);
-    try {
-      const res = await api.settings.readAppLog(selectedDate);
-      setLogLines(res.lines);
-      setLogsTruncated(res.truncated);
-    } catch (error) {
-      toast.error(errorMessage(error));
-    } finally {
-      setLoadingLogs(false);
-    }
+    await fetchAppLog(selectedDate);
   };
 
   const secretKeyVisible = !maskCredentials || revealSecretKey;
@@ -226,6 +255,15 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
           >
             <FileText size={14} />
             <span>System Logs</span>
+          </button>
+
+          <button
+            type="button"
+            className={cx("app-settings__nav-btn", activeTab === "about" && "app-settings__nav-btn--active")}
+            onClick={() => setActiveTab("about")}
+          >
+            <Info size={14} />
+            <span>About</span>
           </button>
         </nav>
 
@@ -378,7 +416,11 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
                   className="system-logs__select"
                   ariaLabel="Log file"
                 />
-                {logsTruncated && <span className="system-logs__hint">Last 1,000 lines</span>}
+                {logTotal > 0 && (
+                  <span className="system-logs__hint">
+                    {logOffset + 1}–{logOffset + logLines.length} of {logTotal} lines
+                  </span>
+                )}
                 <Button
                   variant="secondary"
                   size="sm"
@@ -393,6 +435,78 @@ export function AppSettingsModal({ open, onClose }: AppSettingsModalProps) {
               <pre className="system-logs__viewer">
                 {loadingLogs ? "Loading…" : logLines.length > 0 ? logLines.join("\n") : "No entries"}
               </pre>
+
+              {logTotal > SYSTEM_LOGS_PAGE_SIZE && (
+                <div className="system-logs__pager">
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    icon={<ChevronLeft size={13} />}
+                    disabled={loadingLogs || logOffset === 0}
+                    onClick={() => void fetchAppLog(selectedDate, Math.max(0, logOffset - SYSTEM_LOGS_PAGE_SIZE))}
+                  >
+                    Older
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    trailingIcon={<ChevronRight size={13} />}
+                    disabled={loadingLogs || logOffset + SYSTEM_LOGS_PAGE_SIZE >= logTotal}
+                    onClick={() => void fetchAppLog(selectedDate, logOffset + SYSTEM_LOGS_PAGE_SIZE)}
+                  >
+                    Newer
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "about" && (
+            <div className="about-pane">
+              <div className="about-pane__hero">
+                <BrandMark size={64} />
+                <h3 className="about-pane__title">{APP_NAME}</h3>
+                <p className="about-pane__description">{APP_DESCRIPTION}</p>
+                <Badge mono className="about-pane__version">
+                  v{APP_VERSION}
+                </Badge>
+              </div>
+
+              <section className="about-pane__group" aria-label="Application information">
+                <div className="about-pane__row">
+                  <div className="about-pane__label">
+                    <strong>Author</strong>
+                    <span>{APP_AUTHOR}</span>
+                  </div>
+                  <a
+                    href={APP_AUTHOR_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="about-pane__link"
+                    aria-label={`Open author website (${APP_AUTHOR})`}
+                    title={APP_AUTHOR_URL}
+                  >
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+
+                <div className="about-pane__row">
+                  <div className="about-pane__label">
+                    <strong>GitHub</strong>
+                    <span>{APP_REPO}</span>
+                  </div>
+                  <a
+                    href={APP_REPO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="about-pane__link"
+                    aria-label={`Open GitHub repository (${APP_REPO})`}
+                    title={APP_REPO_URL}
+                  >
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              </section>
             </div>
           )}
         </div>

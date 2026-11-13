@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import type {
+  PaginatedResponse,
   ProjectDetail,
   ProjectSummary,
   ProjectVersionDetail,
@@ -10,7 +11,13 @@ import type {
 import type { ProjectRecord } from "../db/repositories/projectRepository.js";
 import { versionRepository } from "../db/repositories/versionRepository.js";
 import { badRequest, notFound, param, parse } from "../http/httpErrors.js";
-import { createProjectSchema, saveCodeSchema, scheduleSchema, updateProjectSchema } from "../http/schemas.js";
+import {
+  createProjectSchema,
+  paginationSchema,
+  saveCodeSchema,
+  scheduleSchema,
+  updateProjectSchema,
+} from "../http/schemas.js";
 import { projectService } from "../projects/projectService.js";
 import { assertValidSchedule, previewSchedule } from "../scheduler/scheduleParser.js";
 
@@ -86,8 +93,10 @@ projectRoutes.put("/:projectId/code", (request, response: Response<SaveCodeRespo
   response.json(projectService.saveCode(project.id, code));
 });
 
-projectRoutes.get("/:projectId/versions", (request, response: Response<ProjectVersionSummary[]>) => {
-  response.json(versionRepository.list(requireProject(request).id));
+projectRoutes.get("/:projectId/versions", (request, response: Response<PaginatedResponse<ProjectVersionSummary>>) => {
+  const project = requireProject(request);
+  const { limit, offset } = parse(paginationSchema, request.query);
+  response.json(versionRepository.list(project.id, limit, offset));
 });
 
 projectRoutes.get("/:projectId/versions/:version", (request, response: Response<ProjectVersionDetail>) => {

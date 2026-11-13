@@ -72,7 +72,7 @@ export function AppLayout() {
         setRunning(detail.isRunning);
 
         const runs = await api.runs.list(id, { limit: 1 });
-        setLatestRun(runs[0] ? await api.runs.get(runs[0].id) : null);
+        setLatestRun(runs.items[0] ? await api.runs.get(runs.items[0].id) : null);
       } catch (error) {
         toast.error(errorMessage(error));
       }
@@ -272,8 +272,10 @@ export function AppLayout() {
         projects={projects}
         selectedProjectId={selectedId}
         onSelectProject={(id) => {
+          if (id !== selectedId) {
+            setActiveRunId(null);
+          }
           setSelectedId(id);
-          setActiveTab("code");
         }}
         onOpenCreate={() => setCreateModalOpen(true)}
         onOpenSettings={() => setSettingsModalOpen(true)}

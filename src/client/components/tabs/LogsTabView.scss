@@ -109,6 +109,27 @@
     font-size: $text-xs;
     color: var(--text-muted);
   }
+
+  &__pager-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-2;
+    height: 36px;
+    padding: 0 $space-3;
+    border-top: 1px solid var(--border);
+    background: var(--bg-surface);
+    font-size: $text-xs;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  &__pager-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
 }
 
 .run-item {

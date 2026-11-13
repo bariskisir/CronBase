@@ -15,16 +15,45 @@
   &__sidebar {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 8px;
+    min-height: 0;
     border-right: 1px solid var(--border);
     background: var(--bg-shell);
-    overflow-y: auto;
 
     @include below-md {
       border-right: none;
       border-bottom: 1px solid var(--border);
     }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  &__pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-2;
+    height: 36px;
+    padding: 0 $space-3;
+    border-top: 1px solid var(--border);
+    background: var(--bg-surface);
+    font-size: $text-xs;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+
+  &__pager-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   &__loading {

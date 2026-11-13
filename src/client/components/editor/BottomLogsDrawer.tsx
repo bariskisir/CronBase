@@ -24,6 +24,8 @@ export function BottomLogsDrawer({ open, onToggle, latestRun, onOpenFullLogs }: 
                   <StatusPill status={latestRun.status} />
                   <span className="bottom-drawer__details">
                     v{latestRun.version} · {latestRun.trigger} · {formatDuration(latestRun.durationMs)}
+                    {latestRun.logCount > latestRun.logs.length &&
+                      ` · Last ${latestRun.logs.length} of ${latestRun.logCount} lines`}
                   </span>
                 </>
               )}

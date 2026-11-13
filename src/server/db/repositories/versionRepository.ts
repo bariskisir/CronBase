@@ -1,4 +1,4 @@
-import type { ProjectVersionDetail, ProjectVersionSummary } from "../../../shared/types/api.js";
+import type { PaginatedResponse, ProjectVersionDetail, ProjectVersionSummary } from "../../../shared/types/api.js";
 import { getAppDatabase } from "../appDatabase.js";
 import { asNumber, asString, type DbRow, nowIso } from "../rowMapping.js";
 
@@ -11,14 +11,18 @@ function toSummary(row: DbRow): ProjectVersionSummary {
 }
 
 export const versionRepository = {
-  list(projectId: string): ProjectVersionSummary[] {
-    return getAppDatabase()
+  list(projectId: string, limit: number, offset: number): PaginatedResponse<ProjectVersionSummary> {
+    const db = getAppDatabase();
+    const totalRow = db.prepare("SELECT COUNT(*) AS total FROM project_versions WHERE project_id = ?").get(projectId);
+    const total = totalRow ? asNumber(totalRow.total) : 0;
+    const items = db
       .prepare(
         `SELECT version, created_at, LENGTH(code) AS size
-         FROM project_versions WHERE project_id = ? ORDER BY version DESC`,
+         FROM project_versions WHERE project_id = ? ORDER BY version DESC LIMIT ? OFFSET ?`,
       )
-      .all(projectId)
+      .all(projectId, limit, offset)
       .map(toSummary);
+    return { items, total, limit, offset };
   },
 
   find(projectId: string, version: number): ProjectVersionDetail | null {

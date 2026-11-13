@@ -39,8 +39,15 @@ export function SqliteTabView({ projectId }: SqliteTabViewProps) {
 
   const [sqlInput, setSqlInput] = useState("SELECT name, type FROM sqlite_master WHERE type = 'table';");
   const [queryResult, setQueryResult] = useState<SqliteQueryResult | null>(null);
+  const [queryOffset, setQueryOffset] = useState(0);
   const [runningQuery, setRunningQuery] = useState(false);
   const [mode, setMode] = useState<SqliteMode>("browse");
+
+  useEffect(() => {
+    setOffset(0);
+    setQueryOffset(0);
+    setQueryResult(null);
+  }, [projectId]);
 
   const loadTables = useCallback(async () => {
     setLoadingTables(true);
@@ -91,6 +98,7 @@ export function SqliteTabView({ projectId }: SqliteTabViewProps) {
     try {
       const result = await api.sqlite.query(projectId, trimmed);
       setQueryResult(result);
+      setQueryOffset(0);
       void loadTables();
       if (selectedTable && result.kind === "changes") {
         void loadTableData(selectedTable, offset);
@@ -272,7 +280,40 @@ export function SqliteTabView({ projectId }: SqliteTabViewProps) {
                         {queryResult.truncated ? " (truncated to 1,000 rows)" : ""}
                       </span>
                     </div>
-                    <DataGrid columns={queryResult.columns} rows={queryResult.rows} emptyText="Query returned 0 rows" />
+                    <DataGrid
+                      columns={queryResult.columns}
+                      rows={queryResult.rows.slice(queryOffset, queryOffset + PAGE_SIZE)}
+                      rowOffset={queryOffset}
+                      emptyText="Query returned 0 rows"
+                    />
+                    {queryResult.rows.length > PAGE_SIZE && (
+                      <footer className="sqlite-tab__footer">
+                        <span className="sqlite-tab__range">
+                          {queryOffset + 1}–{Math.min(queryOffset + PAGE_SIZE, queryResult.rows.length)} of{" "}
+                          {queryResult.rows.length} rows
+                        </span>
+                        <div className="sqlite-tab__pager">
+                          <Button
+                            variant="secondary"
+                            size="xs"
+                            icon={<ChevronLeft size={13} />}
+                            disabled={queryOffset === 0}
+                            onClick={() => setQueryOffset(Math.max(0, queryOffset - PAGE_SIZE))}
+                          >
+                            Prev
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="xs"
+                            trailingIcon={<ChevronRight size={13} />}
+                            disabled={queryOffset + PAGE_SIZE >= queryResult.rows.length}
+                            onClick={() => setQueryOffset(queryOffset + PAGE_SIZE)}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </footer>
+                    )}
                   </>
                 )}
               </div>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Clock, Play, RefreshCw, ScrollText, Trash2 } from "lucide-react";
-import { LOG_LEVELS, type LogLevel, type RunDetail, type RunSummary } from "../../../shared/types/api";
+import { ChevronLeft, ChevronRight, Clock, Play, RefreshCw, ScrollText, Trash2 } from "lucide-react";
+import { LOG_LEVELS, type LogLevel, type RunLogsPage, type RunSummary } from "../../../shared/types/api";
 import { api, errorMessage } from "../../api/client";
 import { useConfirm } from "../../context/ConfirmContext";
 import { useToast } from "../../context/ToastContext";
@@ -8,6 +8,7 @@ import { cx } from "../../utils/cx";
 import { formatDateTime, formatDuration, formatRelativeTime } from "../../utils/format";
 import {
   Badge,
+  Button,
   EmptyState,
   IconButton,
   LogConsole,
@@ -25,70 +26,99 @@ interface LogsTabViewProps {
 
 type FilterLevel = LogLevel | "all";
 
+const RUNS_PAGE_SIZE = 25;
+const LOGS_PAGE_SIZE = 100;
+
 export function LogsTabView({ projectId, activeRunId }: LogsTabViewProps) {
   const toast = useToast();
   const confirm = useConfirm();
+
   const [runs, setRuns] = useState<RunSummary[]>([]);
+  const [runsTotal, setRunsTotal] = useState(0);
+  const [runsOffset, setRunsOffset] = useState(0);
+  const [loadingRuns, setLoadingRuns] = useState(true);
+
   const [selectedRunId, setSelectedRunId] = useState<string | null>(activeRunId);
-  const [runDetail, setRunDetail] = useState<RunDetail | null>(null);
+  const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
+  const [logsPage, setLogsPage] = useState<RunLogsPage | null>(null);
+  const [logsOffset, setLogsOffset] = useState(0);
   const [levelFilter, setLevelFilter] = useState<FilterLevel>("all");
-  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setRunsOffset(0);
+    setLogsOffset(0);
+    setSelectedRunId(activeRunId);
+    setSelectedRun(null);
+    setLogsPage(null);
+  }, [projectId, activeRunId]);
 
   const loadRuns = useCallback(async () => {
     try {
-      const list = await api.runs.list(projectId, { limit: 100 });
-      setRuns(list);
+      const page = await api.runs.list(projectId, { limit: RUNS_PAGE_SIZE, offset: runsOffset });
+      setRuns(page.items);
+      setRunsTotal(page.total);
       setSelectedRunId((current) => {
-        if (current && list.some((r) => r.id === current)) return current;
-        return list[0]?.id ?? null;
+        if (current) return current;
+        return page.items[0]?.id ?? null;
       });
     } catch (error) {
       toast.error(errorMessage(error));
     } finally {
-      setLoading(false);
+      setLoadingRuns(false);
     }
-  }, [projectId, toast]);
+  }, [projectId, runsOffset, toast]);
 
   useEffect(() => {
-    setLoading(true);
+    setLoadingRuns(true);
     void loadRuns();
   }, [loadRuns]);
 
   useEffect(() => {
     if (activeRunId) {
       setSelectedRunId(activeRunId);
-      void loadRuns();
+      setRunsOffset(0);
+      setLogsOffset(0);
     }
-  }, [activeRunId, loadRuns]);
+  }, [activeRunId]);
 
-  useEffect(() => {
+  const fetchRunAndLogs = useCallback(async () => {
     if (!selectedRunId) {
-      setRunDetail(null);
+      setSelectedRun(null);
+      setLogsPage(null);
       return;
     }
 
-    let cancelled = false;
-    const fetchDetail = async () => {
-      try {
-        const detail = await api.runs.get(selectedRunId);
-        if (!cancelled) setRunDetail(detail);
-      } catch {
-        return;
-      }
-    };
+    try {
+      const [detail, logs] = await Promise.all([
+        api.runs.get(selectedRunId),
+        api.runs.logs(selectedRunId, {
+          limit: LOGS_PAGE_SIZE,
+          offset: logsOffset,
+          level: levelFilter === "all" ? undefined : levelFilter,
+        }),
+      ]);
+      setSelectedRun(detail);
+      setLogsPage(logs);
+    } catch {
+      return;
+    }
+  }, [selectedRunId, logsOffset, levelFilter]);
 
-    void fetchDetail();
+  useEffect(() => {
+    void fetchRunAndLogs();
+  }, [fetchRunAndLogs]);
 
+  useEffect(() => {
+    const isSelectedRunning = selectedRun?.status === "running" || (activeRunId !== null && activeRunId === selectedRunId);
     const interval = window.setInterval(() => {
-      void fetchDetail();
       void loadRuns();
+      if (isSelectedRunning) {
+        void fetchRunAndLogs();
+      }
     }, 2000);
 
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-    };
-  }, [selectedRunId, loadRuns]);
+    return () => window.clearInterval(interval);
+  }, [loadRuns, fetchRunAndLogs, selectedRun?.status, activeRunId, selectedRunId]);
 
   const handleClearLogs = async () => {
     const approved = await confirm({
@@ -102,44 +132,67 @@ export function LogsTabView({ projectId, activeRunId }: LogsTabViewProps) {
     try {
       await api.runs.clear(projectId);
       toast.success("Execution history cleared");
-      setRuns([]);
+      setRunsOffset(0);
+      setLogsOffset(0);
       setSelectedRunId(null);
-      setRunDetail(null);
+      setSelectedRun(null);
+      setLogsPage(null);
+      await loadRuns();
     } catch (error) {
       toast.error(errorMessage(error));
     }
   };
 
+  const handleSelectRun = (run: RunSummary) => {
+    if (run.id === selectedRunId) return;
+    setSelectedRunId(run.id);
+    setSelectedRun(run);
+    setLogsOffset(0);
+  };
+
+  const handleLevelChange = (nextLevel: FilterLevel) => {
+    setLevelFilter(nextLevel);
+    setLogsOffset(0);
+  };
+
   const filterOptions: readonly SegmentedOption<FilterLevel>[] = [
-    { value: "all", label: `All (${runDetail?.logs.length ?? 0})` },
+    { value: "all", label: `All (${logsPage?.totalAll ?? selectedRun?.logCount ?? 0})` },
     ...LOG_LEVELS.map((level) => ({ value: level, label: level.toUpperCase() })),
   ];
 
-  const filteredLogs =
-    runDetail?.logs.filter((entry) => (levelFilter === "all" ? true : entry.level === levelFilter)) ?? [];
+  const entries = logsPage?.items ?? [];
+  const totalLogs = logsPage?.total ?? 0;
 
   return (
     <div className="logs-tab">
       <aside className="logs-tab__sidebar">
         <header className="logs-tab__sidebar-head">
           <span className="logs-tab__sidebar-title">
-            Executions <span>{runs.length}</span>
+            Executions <span>{runsTotal}</span>
           </span>
           <div className="logs-tab__sidebar-actions">
-            <IconButton size="xs" label="Refresh runs" icon={<RefreshCw size={13} />} onClick={() => void loadRuns()} />
+            <IconButton
+              size="xs"
+              label="Refresh runs"
+              icon={<RefreshCw size={13} />}
+              onClick={() => {
+                void loadRuns();
+                void fetchRunAndLogs();
+              }}
+            />
             <IconButton
               size="xs"
               tone="danger"
               label="Clear history"
               icon={<Trash2 size={13} />}
-              disabled={runs.length === 0}
+              disabled={runsTotal === 0}
               onClick={() => void handleClearLogs()}
             />
           </div>
         </header>
 
         <div className="logs-tab__run-list">
-          {loading ? (
+          {loadingRuns ? (
             <div className="logs-tab__center">
               <Spinner />
             </div>
@@ -153,7 +206,7 @@ export function LogsTabView({ projectId, activeRunId }: LogsTabViewProps) {
                   key={run.id}
                   type="button"
                   className={cx("run-item", selected && "run-item--active")}
-                  onClick={() => setSelectedRunId(run.id)}
+                  onClick={() => handleSelectRun(run)}
                 >
                   <div className="run-item__top">
                     <StatusPill status={run.status} />
@@ -175,18 +228,46 @@ export function LogsTabView({ projectId, activeRunId }: LogsTabViewProps) {
             })
           )}
         </div>
+
+        {runsTotal > RUNS_PAGE_SIZE && (
+          <footer className="logs-tab__pager-footer">
+            <span className="logs-tab__pager-range">
+              {runs.length === 0 ? 0 : runsOffset + 1}–{runsOffset + runs.length} of {runsTotal}
+            </span>
+            <div className="logs-tab__pager-controls">
+              <Button
+                variant="secondary"
+                size="xs"
+                icon={<ChevronLeft size={13} />}
+                disabled={runsOffset === 0}
+                onClick={() => setRunsOffset(Math.max(0, runsOffset - RUNS_PAGE_SIZE))}
+              >
+                Prev
+              </Button>
+              <Button
+                variant="secondary"
+                size="xs"
+                trailingIcon={<ChevronRight size={13} />}
+                disabled={runsOffset + RUNS_PAGE_SIZE >= runsTotal}
+                onClick={() => setRunsOffset(runsOffset + RUNS_PAGE_SIZE)}
+              >
+                Next
+              </Button>
+            </div>
+          </footer>
+        )}
       </aside>
 
       <section className="logs-tab__detail">
-        {runDetail ? (
+        {selectedRun ? (
           <>
             <header className="logs-tab__toolbar">
               <div className="logs-tab__run-summary">
-                <StatusPill status={runDetail.status} />
-                <code className="logs-tab__run-id">{runDetail.id.slice(0, 8)}</code>
+                <StatusPill status={selectedRun.status} />
+                <code className="logs-tab__run-id">{selectedRun.id.slice(0, 8)}</code>
                 <span className="logs-tab__run-meta">
-                  v{runDetail.version} · {runDetail.trigger} · {formatRelativeTime(runDetail.startedAt)} ·{" "}
-                  {formatDuration(runDetail.durationMs)}
+                  v{selectedRun.version} · {selectedRun.trigger} · {formatRelativeTime(selectedRun.startedAt)} ·{" "}
+                  {formatDuration(selectedRun.durationMs)}
                 </span>
               </div>
 
@@ -194,19 +275,47 @@ export function LogsTabView({ projectId, activeRunId }: LogsTabViewProps) {
                 size="sm"
                 value={levelFilter}
                 options={filterOptions}
-                onChange={setLevelFilter}
+                onChange={handleLevelChange}
                 ariaLabel="Filter log level"
               />
             </header>
 
             <LogConsole
-              entries={filteredLogs}
+              entries={entries}
               emptyText={
-                runDetail.status === "running"
+                selectedRun.status === "running"
                   ? "Waiting for console output…"
                   : "No log entries match the selected filter"
               }
             />
+
+            {totalLogs > LOGS_PAGE_SIZE && (
+              <footer className="logs-tab__pager-footer">
+                <span className="logs-tab__pager-range">
+                  {entries.length === 0 ? 0 : logsOffset + 1}–{logsOffset + entries.length} of {totalLogs} lines
+                </span>
+                <div className="logs-tab__pager-controls">
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    icon={<ChevronLeft size={13} />}
+                    disabled={logsOffset === 0}
+                    onClick={() => setLogsOffset(Math.max(0, logsOffset - LOGS_PAGE_SIZE))}
+                  >
+                    Prev
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    trailingIcon={<ChevronRight size={13} />}
+                    disabled={logsOffset + LOGS_PAGE_SIZE >= totalLogs}
+                    onClick={() => setLogsOffset(logsOffset + LOGS_PAGE_SIZE)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </footer>
+            )}
           </>
         ) : (
           <EmptyState icon={<ScrollText size={18} />} title="No run selected" />

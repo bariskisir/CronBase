@@ -1,4 +1,13 @@
-import type { LogLevel, RunDetail, RunLogEntry, RunStatus, RunSummary, RunTrigger } from "../../../shared/types/api.js";
+import type {
+  LogLevel,
+  PaginatedResponse,
+  RunDetail,
+  RunLogEntry,
+  RunLogsPage,
+  RunStatus,
+  RunSummary,
+  RunTrigger,
+} from "../../../shared/types/api.js";
 import { LOG_LEVELS } from "../../../shared/types/api.js";
 import { getAppDatabase } from "../appDatabase.js";
 import { asNullableNumber, asNullableString, asNumber, asString, type DbRow, nowIso } from "../rowMapping.js";
@@ -84,25 +93,63 @@ export const runRepository = {
       .run(runId, projectId, level, message, createdAt);
   },
 
-  list(projectId: string, limit: number, before: string | null): RunSummary[] {
+  list(projectId: string, limit: number, offset: number): PaginatedResponse<RunSummary> {
     const db = getAppDatabase();
-    const rows = before
-      ? db
-          .prepare(`${SUMMARY_SELECT} WHERE r.project_id = ? AND r.started_at < ? ORDER BY r.started_at DESC LIMIT ?`)
-          .all(projectId, before, limit)
-      : db.prepare(`${SUMMARY_SELECT} WHERE r.project_id = ? ORDER BY r.started_at DESC LIMIT ?`).all(projectId, limit);
-    return rows.map(toSummary);
+    const totalRow = db.prepare("SELECT COUNT(*) AS total FROM project_runs WHERE project_id = ?").get(projectId);
+    const total = totalRow ? asNumber(totalRow.total) : 0;
+    const rows = db
+      .prepare(`${SUMMARY_SELECT} WHERE r.project_id = ? ORDER BY r.started_at DESC LIMIT ? OFFSET ?`)
+      .all(projectId, limit, offset);
+    return {
+      items: rows.map(toSummary),
+      total,
+      limit,
+      offset,
+    };
   },
 
-  find(runId: string): RunDetail | null {
+  find(runId: string, tailLimit = 200): RunDetail | null {
     const db = getAppDatabase();
     const row = db.prepare(`${SUMMARY_SELECT} WHERE r.id = ?`).get(runId);
     if (!row) return null;
-    const logs = db
-      .prepare("SELECT id, level, message, created_at FROM project_run_logs WHERE run_id = ? ORDER BY id ASC")
-      .all(runId)
-      .map(toLogEntry);
+    const logs =
+      tailLimit > 0
+        ? db
+            .prepare("SELECT id, level, message, created_at FROM project_run_logs WHERE run_id = ? ORDER BY id DESC LIMIT ?")
+            .all(runId, tailLimit)
+            .reverse()
+            .map(toLogEntry)
+        : [];
     return { ...toSummary(row), logs };
+  },
+
+  listLogs(runId: string, limit: number, offset: number, level?: LogLevel): RunLogsPage | null {
+    const db = getAppDatabase();
+    const exists = db.prepare("SELECT 1 FROM project_runs WHERE id = ?").get(runId);
+    if (!exists) return null;
+
+    const totalAllRow = db.prepare("SELECT COUNT(*) AS total FROM project_run_logs WHERE run_id = ?").get(runId);
+    const totalAll = totalAllRow ? asNumber(totalAllRow.total) : 0;
+
+    if (level) {
+      const totalRow = db
+        .prepare("SELECT COUNT(*) AS total FROM project_run_logs WHERE run_id = ? AND level = ?")
+        .get(runId, level);
+      const total = totalRow ? asNumber(totalRow.total) : 0;
+      const items = db
+        .prepare(
+          "SELECT id, level, message, created_at FROM project_run_logs WHERE run_id = ? AND level = ? ORDER BY id ASC LIMIT ? OFFSET ?",
+        )
+        .all(runId, level, limit, offset)
+        .map(toLogEntry);
+      return { items, total, totalAll, limit, offset };
+    }
+
+    const items = db
+      .prepare("SELECT id, level, message, created_at FROM project_run_logs WHERE run_id = ? ORDER BY id ASC LIMIT ? OFFSET ?")
+      .all(runId, limit, offset)
+      .map(toLogEntry);
+    return { items, total: totalAll, totalAll, limit, offset };
   },
 
   clear(projectId: string): void {

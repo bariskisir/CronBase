@@ -1,17 +1,17 @@
 import { Router, type Response } from "express";
-import type { RunDetail, RunSummary, StartRunResponse } from "../../shared/types/api.js";
+import type { PaginatedResponse, RunDetail, RunLogsPage, RunSummary, StartRunResponse } from "../../shared/types/api.js";
 import { runRepository } from "../db/repositories/runRepository.js";
 import { HttpError, notFound, param, parse } from "../http/httpErrors.js";
-import { runListQuerySchema } from "../http/schemas.js";
+import { runListQuerySchema, runLogsQuerySchema } from "../http/schemas.js";
 import { projectRunner } from "../runner/projectRunner.js";
 import { requireProject } from "./projectRoutes.js";
 
 export const projectRunRoutes = Router({ mergeParams: true });
 
-projectRunRoutes.get("/", (request, response: Response<RunSummary[]>) => {
+projectRunRoutes.get("/", (request, response: Response<PaginatedResponse<RunSummary>>) => {
   const project = requireProject(request);
-  const { limit, before } = parse(runListQuerySchema, request.query);
-  response.json(runRepository.list(project.id, limit, before ?? null));
+  const { limit, offset } = parse(runListQuerySchema, request.query);
+  response.json(runRepository.list(project.id, limit, offset));
 });
 
 projectRunRoutes.post("/", (request, response: Response<StartRunResponse>) => {
@@ -34,4 +34,11 @@ runRoutes.get("/:runId", (request, response: Response<RunDetail>) => {
   const run = runRepository.find(param(request, "runId"));
   if (!run) throw notFound("Run not found");
   response.json(run);
+});
+
+runRoutes.get("/:runId/logs", (request, response: Response<RunLogsPage>) => {
+  const { limit, offset, level } = parse(runLogsQuerySchema, request.query);
+  const page = runRepository.listLogs(param(request, "runId"), limit, offset, level);
+  if (!page) throw notFound("Run not found");
+  response.json(page);
 });

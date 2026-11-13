@@ -5,11 +5,14 @@ import type {
   AuthTokensResponse,
   ChangePasswordRequest,
   EnvVar,
+  LogLevel,
+  PaginatedResponse,
   ProjectDetail,
   ProjectSummary,
   ProjectVersionDetail,
   ProjectVersionSummary,
   RunDetail,
+  RunLogsPage,
   RunSummary,
   SaveCodeResponse,
   Schedule,
@@ -203,7 +206,13 @@ export const api = {
       return res.secretKey;
     },
     listAppLogs: () => request<AppLogFilesResponse>("GET", "/settings/app-logs"),
-    readAppLog: (date: string) => request<AppLogContentResponse>("GET", `/settings/app-logs/${enc(date)}`),
+    readAppLog: (date: string, options: { limit?: number; offset?: number } = {}) => {
+      const query = new URLSearchParams();
+      if (options.limit !== undefined) query.set("limit", String(options.limit));
+      if (options.offset !== undefined) query.set("offset", String(options.offset));
+      const suffix = query.size > 0 ? `?${query.toString()}` : "";
+      return request<AppLogContentResponse>("GET", `/settings/app-logs/${enc(date)}${suffix}`);
+    },
   },
 
   projects: {
@@ -216,7 +225,13 @@ export const api = {
       request<ProjectDetail>("PUT", `/projects/${enc(id)}/schedule`, schedule),
     previewSchedule: (schedule: Schedule) => request<SchedulePreview>("POST", "/projects/schedule-preview", schedule),
     saveCode: (id: string, code: string) => request<SaveCodeResponse>("PUT", `/projects/${enc(id)}/code`, { code }),
-    listVersions: (id: string) => request<ProjectVersionSummary[]>("GET", `/projects/${enc(id)}/versions`),
+    listVersions: (id: string, options: { limit?: number; offset?: number } = {}) => {
+      const query = new URLSearchParams();
+      if (options.limit !== undefined) query.set("limit", String(options.limit));
+      if (options.offset !== undefined) query.set("offset", String(options.offset));
+      const suffix = query.size > 0 ? `?${query.toString()}` : "";
+      return request<PaginatedResponse<ProjectVersionSummary>>("GET", `/projects/${enc(id)}/versions${suffix}`);
+    },
     getVersion: (id: string, version: number) =>
       request<ProjectVersionDetail>("GET", `/projects/${enc(id)}/versions/${version}`),
     restoreVersion: (id: string, version: number) =>
@@ -236,16 +251,24 @@ export const api = {
   },
 
   runs: {
-    list: (projectId: string, options: { limit?: number; before?: string } = {}) => {
+    list: (projectId: string, options: { limit?: number; offset?: number } = {}) => {
       const query = new URLSearchParams();
-      if (options.limit) query.set("limit", String(options.limit));
-      if (options.before) query.set("before", options.before);
+      if (options.limit !== undefined) query.set("limit", String(options.limit));
+      if (options.offset !== undefined) query.set("offset", String(options.offset));
       const suffix = query.size > 0 ? `?${query.toString()}` : "";
-      return request<RunSummary[]>("GET", `/projects/${enc(projectId)}/runs${suffix}`);
+      return request<PaginatedResponse<RunSummary>>("GET", `/projects/${enc(projectId)}/runs${suffix}`);
     },
     start: (projectId: string) => request<StartRunResponse>("POST", `/projects/${enc(projectId)}/runs`),
     clear: (projectId: string) => request<void>("DELETE", `/projects/${enc(projectId)}/runs`),
     get: (runId: string) => request<RunDetail>("GET", `/runs/${enc(runId)}`),
+    logs: (runId: string, options: { limit?: number; offset?: number; level?: LogLevel } = {}) => {
+      const query = new URLSearchParams();
+      if (options.limit !== undefined) query.set("limit", String(options.limit));
+      if (options.offset !== undefined) query.set("offset", String(options.offset));
+      if (options.level) query.set("level", options.level);
+      const suffix = query.size > 0 ? `?${query.toString()}` : "";
+      return request<RunLogsPage>("GET", `/runs/${enc(runId)}/logs${suffix}`);
+    },
   },
 
   sqlite: {
